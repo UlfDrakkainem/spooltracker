@@ -45,8 +45,17 @@ const DEFAULT_BRANDS = [
   { name: 'Premium Filament', defaultEmptySpoolWeight: 250, defaultSpoolType: 'plastic' }
 ];
 
+interface Brand {
+  id: string;
+  name: string;
+  defaultEmptySpoolWeight: number;
+  defaultSpoolType: string;
+  logoUrl?: string;
+  ownerId: string;
+}
+
 export default function Brands() {
-  const [brands, setBrands] = useState<any[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -65,7 +74,7 @@ export default function Brands() {
     
     const q = query(collection(db, 'brands'), where('ownerId', '==', auth.currentUser.uid));
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const brandsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const brandsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Brand));
       setBrands(brandsData);
       setLoading(false);
 

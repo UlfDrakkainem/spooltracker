@@ -23,7 +23,6 @@ export default defineConfig(({mode}) => {
           display: 'standalone',
           orientation: 'portrait',
           id: '/',
-          scope: '/',
           start_url: '/',
           icons: [
             {
