@@ -31,6 +31,14 @@ export default function AddSpool() {
   const [spoolType, setSpoolType] = useState('plastic');
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const barcodeParam = params.get('barcode');
+    if (barcodeParam) {
+      setBarcode(barcodeParam);
+    }
+  }, []);
+
+  useEffect(() => {
     if (color && !isMultiColor && (colorHex === '#000000' || colorHex === '#cccccc')) {
       const guessed = guessColorHex(color);
       if (guessed !== '#cccccc') {

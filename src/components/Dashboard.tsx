@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db, auth, handleFirestoreError, OperationType } from '../lib/firebase';
 import { collection, query, onSnapshot, doc, updateDoc, deleteDoc, addDoc, serverTimestamp, where, getDocs } from 'firebase/firestore';
-import { ScanBarcode, Search, Edit3, Trash2, Scale, Database, Settings2, Info, Droplet, Thermometer, Box, Wifi, LayoutGrid, List } from 'lucide-react';
+import { ScanBarcode, Search, Edit3, Trash2, Scale, Database, Settings2, Info, Droplet, Thermometer, Box, Wifi, LayoutGrid, List, Plus } from 'lucide-react';
 import Scanner from './Scanner';
 import { Link } from 'react-router-dom';
 import { guessColorHex, getBrandLogo, getColorStyle } from '../lib/helpers';
@@ -33,6 +33,14 @@ export default function Dashboard() {
   const handleScan = (code: string) => {
     setSearchQuery(code);
     setShowScanner(false);
+    
+    // Check if there's an exact barcode match and open it immediately
+    const exactMatch = spools.find(s => s.barcode === code);
+    if (exactMatch) {
+      const actualColorHex = guessColorHex(exactMatch.color, exactMatch.colorHex);
+      const actualLogoUrl = getBrandLogo(exactMatch.brandName, exactMatch.brandLogoUrl);
+      setViewSpool({...exactMatch, colorHex: actualColorHex, brandLogoUrl: actualLogoUrl});
+    }
   };
 
   const handleUpdateWeight = async (e: React.FormEvent) => {
@@ -323,6 +331,33 @@ export default function Dashboard() {
             >
               <Database className="w-5 h-5" />
               {isSeeding ? 'Ładowanie...' : 'Wgraj dane początkowe'}
+            </button>
+          </div>
+        </div>
+      ) : filteredSpools.length === 0 ? (
+        <div className="bg-white dark:bg-zinc-900 p-12 rounded-3xl shadow-sm border border-zinc-200 dark:border-zinc-800 text-center transition-colors">
+          <div className="w-20 h-20 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Search className="w-10 h-10 text-zinc-400" />
+          </div>
+          <h2 className="text-xl font-bold mb-2 text-zinc-900 dark:text-white">Brak wyników</h2>
+          <p className="text-zinc-500 dark:text-zinc-400 mb-8 max-w-xs mx-auto">
+            Nie znaleźliśmy żadnej szpuli pasującej do Twoich kryteriów wyszukiwania.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            {searchQuery && (
+              <Link 
+                to={`/add?barcode=${searchQuery}`}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-bold flex items-center justify-center gap-2 transition-colors shadow-lg shadow-blue-500/20"
+              >
+                <Plus className="w-5 h-5" /> Dodaj szpulę z tym kodem
+              </Link>
+            )}
+            <button 
+              onClick={() => { setSearchQuery(''); setFilterBrand(''); setFilterMaterial(''); }}
+              className="bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 px-6 py-3 rounded-2xl font-bold transition-colors"
+            >
+              Wyczyść filtry
             </button>
           </div>
         </div>
