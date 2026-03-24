@@ -46,22 +46,7 @@ export default defineConfig(({mode}) => {
               purpose: 'maskable'
             }
           ],
-          screenshots: [
-            {
-              src: 'https://images.unsplash.com/photo-1633394834720-410069411603?q=80&w=1920&auto=format&fit=crop',
-              sizes: '1920x1080',
-              type: 'image/jpeg',
-              form_factor: 'wide',
-              label: 'SpoolTracker Dashboard'
-            },
-            {
-              src: 'https://images.unsplash.com/photo-1633394834720-410069411603?q=80&w=1080&auto=format&fit=crop',
-              sizes: '1080x1920',
-              type: 'image/jpeg',
-              form_factor: 'narrow',
-              label: 'SpoolTracker Mobile View'
-            }
-          ]
+          
         }
       })
     ],
