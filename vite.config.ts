@@ -13,7 +13,7 @@ export default defineConfig(({mode}) => {
       tailwindcss(),
       VitePWA({
         registerType: 'autoUpdate',
-        includeAssets: ['favicon.ico', 'apple-touch-icon-180x180.png', 'icon.svg', 'pwa-64x64.png', 'pwa-192x192.png', 'pwa-512x512.png', 'maskable-icon-512x512.png'],
+        includeAssets: ['app-favicon.ico', 'app-apple-touch-icon-180x180.png', 'icon.svg', 'app-icon-64x64.png', 'app-icon-192x192.png', 'app-icon-512x512.png', 'app-maskable-icon-512x512.png'],
         manifest: {
           name: 'SpoolTracker',
           short_name: 'SpoolTracker',
@@ -26,25 +26,25 @@ export default defineConfig(({mode}) => {
           start_url: '/',
           icons: [
             {
-              src: '/pwa-64x64.png',
+              src: '/app-icon-64x64.png',
               sizes: '64x64',
               type: 'image/png',
               purpose: 'any'
             },
             {
-              src: '/pwa-192x192.png',
+              src: '/app-icon-192x192.png',
               sizes: '192x192',
               type: 'image/png',
               purpose: 'any'
             },
             {
-              src: '/pwa-512x512.png',
+              src: '/app-icon-512x512.png',
               sizes: '512x512',
               type: 'image/png',
               purpose: 'any'
             },
             {
-              src: '/maskable-icon-512x512.png',
+              src: '/app-maskable-icon-512x512.png',
               sizes: '512x512',
               type: 'image/png',
               purpose: 'maskable'
