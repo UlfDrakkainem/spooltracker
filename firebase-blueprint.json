@@ -1,0 +1,117 @@
+{
+  "entities": {
+    "Brand": {
+      "title": "Brand",
+      "description": "A 3D printing filament brand",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the brand (e.g., JAYO, eSUN)"
+        },
+        "defaultEmptySpoolWeight": {
+          "type": "number",
+          "description": "Default weight of an empty spool in grams"
+        },
+        "defaultSpoolType": {
+          "type": "string",
+          "enum": ["plastic", "cardboard", "metal", "other"],
+          "description": "Default material of the spool"
+        },
+        "logoUrl": {
+          "type": "string",
+          "description": "Optional URL to the brand's logo image"
+        },
+        "ownerId": {
+          "type": "string",
+          "description": "User ID of the owner"
+        }
+      },
+      "required": ["name", "defaultEmptySpoolWeight", "defaultSpoolType", "ownerId"]
+    },
+    "Spool": {
+      "title": "Spool",
+      "description": "A specific spool of filament",
+      "type": "object",
+      "properties": {
+        "brandId": {
+          "type": "string",
+          "description": "Reference to the Brand document ID"
+        },
+        "brandName": {
+          "type": "string",
+          "description": "Denormalized brand name for easier querying"
+        },
+        "brandLogoUrl": {
+          "type": "string",
+          "description": "Denormalized brand logo URL"
+        },
+        "material": {
+          "type": "string",
+          "description": "Filament material (e.g., PLA, PETG, TPU)"
+        },
+        "color": {
+          "type": "string",
+          "description": "Color name of the filament"
+        },
+        "colorHex": {
+          "type": "string",
+          "description": "Hex code representing the color"
+        },
+        "nozzleTemp": {
+          "type": "string",
+          "description": "Recommended nozzle temperature (e.g. 190-220°C)"
+        },
+        "bedTemp": {
+          "type": "string",
+          "description": "Recommended bed temperature (e.g. 50-70°C)"
+        },
+        "barcode": {
+          "type": "string",
+          "description": "Barcode string from the spool"
+        },
+        "initialWeight": {
+          "type": "number",
+          "description": "Initial weight of the filament in grams (e.g., 1000)"
+        },
+        "remainingWeight": {
+          "type": "number",
+          "description": "Remaining weight of the filament in grams"
+        },
+        "emptySpoolWeight": {
+          "type": "number",
+          "description": "Weight of the empty spool in grams"
+        },
+        "spoolType": {
+          "type": "string",
+          "enum": ["plastic", "cardboard", "metal", "other"],
+          "description": "Material of the spool"
+        },
+        "ownerId": {
+          "type": "string",
+          "description": "User ID of the owner"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation timestamp"
+        }
+      },
+      "required": ["brandId", "brandName", "material", "color", "initialWeight", "remainingWeight", "emptySpoolWeight", "spoolType", "ownerId", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/brands/{brandId}": {
+      "schema": {
+        "$ref": "#/entities/Brand"
+      },
+      "description": "Collection of filament brands"
+    },
+    "/spools/{spoolId}": {
+      "schema": {
+        "$ref": "#/entities/Spool"
+      },
+      "description": "Collection of filament spools"
+    }
+  }
+}

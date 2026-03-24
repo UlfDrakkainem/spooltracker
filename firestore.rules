@@ -1,0 +1,89 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.ownerId;
+    }
+    
+    function uidUnchanged() {
+      return !('ownerId' in request.resource.data) || request.resource.data.ownerId == request.auth.uid;
+    }
+    
+    function uidNotModified() {
+      return !('ownerId' in request.resource.data) || request.resource.data.ownerId == resource.data.ownerId;
+    }
+    
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+    
+    function validStringLength(field, minLen, maxLen) {
+      return request.resource.data[field] is string &&
+        request.resource.data[field].size() >= minLen &&
+        request.resource.data[field].size() <= maxLen;
+    }
+
+    // Domain Validators
+    function isValidBrand(data) {
+      return hasRequiredFields(['name', 'defaultEmptySpoolWeight', 'defaultSpoolType', 'ownerId']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.defaultEmptySpoolWeight is number && data.defaultEmptySpoolWeight >= 0 &&
+             data.defaultSpoolType in ['plastic', 'cardboard', 'metal', 'other'] &&
+             (!('logoUrl' in data) || (data.logoUrl is string && data.logoUrl.size() < 500)) &&
+             data.ownerId == request.auth.uid;
+    }
+
+    function isValidSpool(data) {
+      return hasRequiredFields(['brandId', 'brandName', 'material', 'color', 'initialWeight', 'remainingWeight', 'emptySpoolWeight', 'spoolType', 'ownerId', 'createdAt']) &&
+             data.brandId is string && data.brandId.size() > 0 && data.brandId.size() < 100 &&
+             data.brandName is string && data.brandName.size() > 0 && data.brandName.size() < 100 &&
+             (!('brandLogoUrl' in data) || (data.brandLogoUrl is string && data.brandLogoUrl.size() < 500)) &&
+             data.material is string && data.material.size() > 0 && data.material.size() < 50 &&
+             data.color is string && data.color.size() > 0 && data.color.size() < 50 &&
+             (!('colorHex' in data) || (data.colorHex is string && data.colorHex.size() <= 9)) &&
+             (!('nozzleTemp' in data) || (data.nozzleTemp is string && data.nozzleTemp.size() < 50)) &&
+             (!('bedTemp' in data) || (data.bedTemp is string && data.bedTemp.size() < 50)) &&
+             (!('barcode' in data) || (data.barcode is string && data.barcode.size() < 100)) &&
+             data.initialWeight is number && data.initialWeight > 0 &&
+             data.remainingWeight is number && data.remainingWeight >= 0 &&
+             data.emptySpoolWeight is number && data.emptySpoolWeight >= 0 &&
+             data.spoolType in ['plastic', 'cardboard', 'metal', 'other'] &&
+             data.ownerId == request.auth.uid &&
+             data.createdAt is timestamp;
+    }
+
+    function isValidUser(data) {
+      return (!('theme' in data) || (data.theme in ['light', 'dark', 'system']));
+    }
+
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidUser(request.resource.data);
+      allow update: if isOwner(userId) && isValidUser(request.resource.data);
+    }
+
+    match /brands/{brandId} {
+      allow read: if isDocOwner();
+      allow create: if isAuthenticated() && isValidBrand(request.resource.data) && uidUnchanged();
+      allow update: if isDocOwner() && isValidBrand(request.resource.data) && uidNotModified();
+      allow delete: if isDocOwner();
+    }
+
+    match /spools/{spoolId} {
+      allow read: if isDocOwner();
+      allow create: if isAuthenticated() && isValidSpool(request.resource.data) && uidUnchanged();
+      allow update: if isDocOwner() && isValidSpool(request.resource.data) && uidNotModified() && request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if isDocOwner();
+    }
+  }
+}
