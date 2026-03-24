@@ -12,7 +12,7 @@ export default defineConfig(({mode}) => {
       tailwindcss(),
       VitePWA({
         registerType: 'autoUpdate',
-        includeAssets: ['favicon.ico', 'apple-touch-icon-180x180.png', 'icon.svg'],
+        includeAssets: ['favicon.ico', 'apple-touch-icon-180x180.png', 'icon.svg', 'pwa-64x64.png', 'pwa-192x192.png', 'pwa-512x512.png', 'maskable-icon-512x512.png'],
         manifest: {
           name: 'SpoolTracker',
           short_name: 'SpoolTracker',
@@ -21,6 +21,7 @@ export default defineConfig(({mode}) => {
           background_color: '#ffffff',
           display: 'standalone',
           orientation: 'portrait',
+          id: '/',
           scope: '/',
           start_url: '/',
           icons: [
