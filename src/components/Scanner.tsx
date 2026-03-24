@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useZxing } from 'react-zxing';
-import { X, Camera } from 'lucide-react';
+import { X, Camera, RefreshCw } from 'lucide-react';
 
 interface ScannerProps {
   onScan: (result: string) => void;
@@ -8,7 +8,24 @@ interface ScannerProps {
 }
 
 export default function Scanner({ onScan, onClose }: ScannerProps) {
+  const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
+  const [currentDeviceIndex, setCurrentDeviceIndex] = useState<number>(0);
+
+  useEffect(() => {
+    navigator.mediaDevices.enumerateDevices().then((devices) => {
+      const videoDevices = devices.filter((device) => device.kind === 'videoinput');
+      setDevices(videoDevices);
+      
+      // Try to find a back camera initially
+      const backCameraIndex = videoDevices.findIndex(d => d.label.toLowerCase().includes('back') || d.label.toLowerCase().includes('environment'));
+      if (backCameraIndex !== -1) {
+        setCurrentDeviceIndex(backCameraIndex);
+      }
+    });
+  }, []);
+
   const { ref } = useZxing({
+    deviceId: devices[currentDeviceIndex]?.deviceId,
     onDecodeResult(result) {
       onScan(result.getText());
     },
@@ -17,16 +34,27 @@ export default function Scanner({ onScan, onClose }: ScannerProps) {
     },
   });
 
+  const switchCamera = () => {
+    if (devices.length > 1) {
+      setCurrentDeviceIndex((prev) => (prev + 1) % devices.length);
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black/80 z-50 flex flex-col items-center justify-center p-4">
       <div className="relative w-full max-w-sm bg-zinc-900 rounded-2xl overflow-hidden shadow-2xl">
-        <div className="absolute top-4 right-4 z-10">
+        <div className="absolute top-4 right-4 z-10 flex gap-2">
+          {devices.length > 1 && (
+            <button onClick={switchCamera} className="p-2 bg-black/50 hover:bg-black/80 rounded-full text-white transition-colors">
+              <RefreshCw className="w-6 h-6" />
+            </button>
+          )}
           <button onClick={onClose} className="p-2 bg-black/50 hover:bg-black/80 rounded-full text-white transition-colors">
             <X className="w-6 h-6" />
           </button>
         </div>
         <div className="aspect-[3/4] w-full relative bg-black flex items-center justify-center">
-          <video ref={ref} className="w-full h-full object-cover" />
+          <video ref={ref} className="w-full h-full object-cover" autoPlay muted playsInline />
           <div className="absolute inset-0 border-[40px] border-black/40 pointer-events-none">
             <div className="w-full h-full border-2 border-green-500/50 rounded-lg relative">
               <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-green-500 -mt-0.5 -ml-0.5"></div>
