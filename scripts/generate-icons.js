@@ -20,7 +20,7 @@ const renames = [
 
 for (const [oldPath, newPath] of renames) {
   if (fs.existsSync(oldPath)) {
-    fs.renameSync(oldPath, newPath);
+    fs.copyFileSync(oldPath, newPath);
   }
 }
 console.log('Done!');
